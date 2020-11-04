@@ -4,6 +4,8 @@ from pathlib import Path
 import csv
 
 # this is the file path for the files we want to analyze
+# users should update this path to match the directory in which they've stored
+# their own data
 pathName = r'R:\Python\BackBlaze Hard Drive Stats\All Raw Data'
 dataDir = Path(pathName)
 # glob will list out all files matching the argument passed (.csv in this case)
@@ -11,7 +13,7 @@ list_of_files = list(dataDir.glob('*.csv'))
 
 # empty list because we need a list of dfs to iterate over for the concat function
 df_list = []
-for file in list_of_files:
+for file in list_of_files[1:6]:
     df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure'])
     df_list.append(df)
     print(f'File {file} done.')
@@ -30,7 +32,11 @@ df.rename(columns={'capacity_bytes' : 'capacity_gbytes'}, inplace=True)
 # typecast the failures column (0 or 1) as a float so we can do a comparison
 df['failure'] = pd.to_numeric(df['failure'], downcast='float')
 print(df['failure'].value_counts())
+
+# compute the maximum power on hours of all drives
 print(f'maximum power on hours = {df["smart_9_raw"].max()}')
+
+# compute the average power on hours of all drives
 print(f'average power on hours = {df["smart_9_raw"].mean()}')
 
 # select only the failures (a failed drive has a '1' in this column)
