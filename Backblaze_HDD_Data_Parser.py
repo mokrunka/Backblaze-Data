@@ -28,11 +28,18 @@ df['capacity_bytes'] = df['capacity_bytes'] / 1_000_000_000
 # rename the capacity column accordingly
 df.rename(columns={'capacity_bytes' : 'capacity_gbytes'}, inplace=True)
 
-# TODO add the rest of the data to our folder, and look at all data over all 7 years!
 # typecast the failures column (0 or 1) as a float so we can do a comparison
 df['failure'] = pd.to_numeric(df['failure'], downcast='float')
-print(df['failure'].value_counts())
 
+# count up the number of failures
+num_failures = df['failure'].value_counts()
+# compute the daily failure rate = number of drive failures / total drive days (rows)
+DFR = num_failures / len(df.index)
+print('drive days', len(df.index))
+print('dfr ', DFR)
+
+# TODO BB mentions some of the power on hours are out of bounds, and '10+ years' is not
+# TODO possible. we should at least drop all data with drives > 10 yrs old
 # compute the maximum power on hours of all drives
 print(f'maximum power on hours = {df["smart_9_raw"].max()}')
 
@@ -44,5 +51,8 @@ failures = (df[df.failure >= 1])
 print(f'maximum hours at failure = {failures["smart_9_raw"].max()}')
 print(f'minimum hours at failure = {failures["smart_9_raw"].min()}')
 print(f'average hours at failure = {failures["smart_9_raw"].mean()}')
+print(f'Total number of drive failures: {num_failures}')
+print(f'daily failure rate (DFR, %) =  {DFR * 100}')
+print(f'annual failure rate (AFR, %) =  {DFR * 100 * 365}')
 
-print(df)
+# print(df)
