@@ -13,14 +13,15 @@ list_of_files = list(dataDir.glob('*.csv'))
 
 # empty list because we need a list of dfs to iterate over for the concat function
 df_list = []
-for file in list_of_files:
-    df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure'])
+for file in list_of_files[-10:]:
+    df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure', 'serial_number'])
     df_list.append(df)
     print(f'File {file} done.')
 
 # compile all the data into a single dataframe, using the prev. generated list as data
 df = pd.concat(df_list, axis=0, ignore_index=True)
 
+# get rid of all drives with < 1000 drive days
 low_drive_day_filter = df['model'].value_counts().loc[lambda x : x < 1000]
 drive_counts_df = low_drive_day_filter.to_frame()
 filter_list = list(drive_counts_df.index)
@@ -39,6 +40,7 @@ df.rename(columns={'smart_9_raw': 'smart_9_raw (hours)'}, inplace=True)
 df['failure'] = pd.to_numeric(df['failure'], downcast='float')
 
 # take all hours counts greater than 90k and make them their own data frame, then drop them (see filters)
+# 90k hrs is ~10yrs, which is longer than any drive should have been in service
 filt = df['smart_9_raw (hours)'] >= 90_000
 indexNames = df[filt].index
 df.drop(indexNames, inplace=True)
@@ -49,7 +51,6 @@ print(f'model counts {model_counts}, length of model counts {len(model_counts)}'
 
 # count up the number of failures
 num_failures = df['failure'].value_counts()
-print('num failures', num_failures[1])
 failed_drives = num_failures.loc[1]
 # compute the daily failure rate = number of drive failures / total drive days (rows)
 DFR = round((failed_drives / len(df)) * 100, 4)
@@ -58,16 +59,18 @@ print('Drive Days: ', len(df))
 # compute the maximum power on hours of all drives
 print(f'Maximum power on hours = {df["smart_9_raw (hours)"].max():,}')
 
-# compute the average power on hours of all drives
-print(f'Average power on hours = {df["smart_9_raw (hours)"].mean():,}')
-
 # select only the failures (a failed drive has a '1' in this column)
 failures = (df[df.failure >= 1])
+
+# print some interesting statistics about the drives
 print(f'Maximum hours at failure = {failures["smart_9_raw (hours)"].max():,}')
 print(f'Minimum hours at failure = {failures["smart_9_raw (hours)"].min():,}')
 print(f'Average hours at failure = {failures["smart_9_raw (hours)"].mean():,}')
 print(f'Total number of drive failures: {failed_drives}')
 print(f'Daily failure rate (DFR, %) =  {DFR}')
-
 print(f'Annual failure rate (AFR, %) =  {DFR * 365}')
+
+#if we want to see how many drives are of a specific model name
+specific_drive_filt = df['model'] == 'HGST HUH721212ALE600'
+print(df[specific_drive_filt].serial_number.value_counts())
 # print(df.head())
