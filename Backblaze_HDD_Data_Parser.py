@@ -13,8 +13,9 @@ list_of_files = list(dataDir.glob('*.csv'))
 
 # empty list because we need a list of dfs to iterate over for the concat function
 df_list = []
-for file in list_of_files[-10:]:
-    df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure', 'serial_number'])
+for file in list_of_files:
+    df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure',
+                                                       'serial_number'])
     df_list.append(df)
     print(f'File {file} done.')
 
@@ -22,7 +23,7 @@ for file in list_of_files[-10:]:
 df = pd.concat(df_list, axis=0, ignore_index=True)
 
 # get rid of all drives with < 1000 drive days
-low_drive_day_filter = df['model'].value_counts().loc[lambda x : x < 1000]
+low_drive_day_filter = df['model'].value_counts().loc[lambda x: x < 1000]
 drive_counts_df = low_drive_day_filter.to_frame()
 filter_list = list(drive_counts_df.index)
 new_filter = df['model'].isin(filter_list)
@@ -70,7 +71,8 @@ print(f'Total number of drive failures: {failed_drives}')
 print(f'Daily failure rate (DFR, %) =  {DFR}')
 print(f'Annual failure rate (AFR, %) =  {DFR * 365}')
 
-#if we want to see how many drives are of a specific model name
+# if we want to see how many drives are of a specific model name
 specific_drive_filt = df['model'] == 'HGST HUH721212ALE600'
 print(df[specific_drive_filt].serial_number.value_counts())
+print(df.loc[lambda df: df['smart_9_raw (hours)'] == 183.0])
 # print(df.head())
