@@ -8,6 +8,3 @@ You can find the raw data here: https://www.backblaze.com/b2/hard-drive-test-dat
 Note that in order to run the code in this repo, you'll need to have downloaded the datasets (you don't have to download
 all of them if you don't want), and will have to modify the code to point to the location on your local machine where you
 have the data stored. See code for comments and guidance on this.
-
-If there's enough interest, maybe I'll make a version that asks you to put in the correct directory, so you don't have to
-hard-code it.
