@@ -13,7 +13,7 @@ list_of_files = list(dataDir.glob('*.csv'))
 
 # empty list because we need a list of dfs to iterate over for the concat function
 df_list = []
-for file in list_of_files[-20:]:
+for file in list_of_files[-100:]:
     df = pd.read_csv(file, sep=',', header=0, usecols=['smart_9_raw', 'model', 'capacity_bytes', 'failure',
                                                        'serial_number'])
     df_list.append(df)
@@ -21,6 +21,16 @@ for file in list_of_files[-20:]:
 
 # compile all the data into a single dataframe, using the prev. generated list as data
 df = pd.concat(df_list, axis=0, ignore_index=True)
+
+# count the number of entries for each drive model
+model_counts = df['model'].value_counts()
+print(f'Here are a list of the model choices for analysis: {model_counts}. \nThere are {len(model_counts)} total drive models available.')
+
+# TODO we should allow the user to input the model number of the drive to look at drive specific data
+# filter for only the specific drive the user cares about
+drive_model_of_interest = input("Enter the exact model number (e.g. 'HGST HUH721212ALE600'): ")
+specific_drive_filt = df['model'] == drive_model_of_interest
+df = df[specific_drive_filt]
 
 # get rid of all drives with < 1000 drive days
 low_drive_day_filter = df['model'].value_counts().loc[lambda x: x < 1000]
@@ -46,10 +56,6 @@ filt = df['smart_9_raw (hours)'] >= 90_000
 indexNames = df[filt].index
 df.drop(indexNames, inplace=True)
 
-# count the number of entries for each drive model
-model_counts = df['model'].value_counts()
-print(f'model counts {model_counts}, length of model counts {len(model_counts)}')
-
 # count up the number of failures
 num_failures = df['failure'].value_counts()
 failed_drives = num_failures.loc[1]
@@ -71,11 +77,4 @@ print(f'Total number of drive failures: {failed_drives}')
 print(f'Daily failure rate (DFR, %) =  {DFR}')
 print(f'Annual failure rate (AFR, %) =  {DFR * 365}')
 
-# if we want to see how many drives are of a specific model name
-specific_drive_filt = df['model'] == 'HGST HUH721212ALE600'
-# print(df[specific_drive_filt].serial_number.value_counts())
-print(df[specific_drive_filt].value_counts())
-# print(df.loc[lambda df: df['smart_9_raw (hours)'] == 183.0])
 # print(df.head())
-
-# TODO we should allow the user to input the model number of the drive to look at drive specific data
