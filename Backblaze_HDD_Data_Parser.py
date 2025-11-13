@@ -6,7 +6,7 @@ import csv
 # this is the file path for the files we want to analyze
 # users should update this path to match the directory in which they've stored
 # their own data
-pathName = r'R:\Python\BackBlaze Hard Drive Stats\All Raw Data'
+pathName = r'X:\Python\BackBlaze Hard Drive Stats\All Raw Data'
 dataDir = Path(pathName)
 # glob will list out all files matching the argument passed (.csv in this case)
 list_of_files = list(dataDir.glob('*.csv'))
@@ -67,13 +67,14 @@ failures = (df[df.failure >= 1])
 print(f'Maximum hours at failure = {failures["smart_9_raw (hours)"].max():,}')
 print(f'Minimum hours at failure = {failures["smart_9_raw (hours)"].min():,}')
 print(f'Average hours at failure = {failures["smart_9_raw (hours)"].mean():,}')
-print(f'Total number of drive failures: {failed_drives}')
+print(f'Total number of drive failures:'
+      f' {failed_drives}')
 print(f'Daily failure rate (DFR, %) =  {DFR}')
 print(f'Annual failure rate (AFR, %) =  {DFR * 365}')
 
 # if we want to see how many drives are of a specific model name
-specific_drive_filt = df['model'] == 'HGST HUH721212ALE600'
-# print(df[specific_drive_filt].serial_number.value_counts())
+specific_drive_filt = df['model'] == 'ST6000NM0014'
+print(df[specific_drive_filt].serial_number.value_counts())
 print(df[specific_drive_filt].value_counts())
 # print(df.loc[lambda df: df['smart_9_raw (hours)'] == 183.0])
 # print(df.head())
