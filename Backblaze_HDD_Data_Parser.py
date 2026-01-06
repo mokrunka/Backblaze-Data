@@ -6,7 +6,7 @@ import csv
 # this is the file path for the files we want to analyze
 # users should update this path to match the directory in which they've stored
 # their own data
-pathName = r'Z:\Python\BackBlaze Hard Drive Stats\All Raw Data'
+pathName = r'X:\Python\BackBlaze Hard Drive Stats\All Raw Data'
 dataDir = Path(pathName)
 # glob will list out all files matching the argument passed (.csv in this case)
 list_of_files = list(dataDir.glob('*.csv'))
